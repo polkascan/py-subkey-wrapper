@@ -94,6 +94,7 @@ class DockerSubkeyImplementation(SubkeyImplementation):
 
         except ContainerError as e:
             raise CommandFailException('Docker Error: ', e)
+
         except json.JSONDecodeError as e:
             raise CommandFailException('Invalid format: ', e)
 
@@ -107,6 +108,9 @@ class LocalSubkeyImplementation(SubkeyImplementation):
 
         result = subprocess.run([self.subkey_path, '--output=json'] + command, input=stdin, encoding='ascii',
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        if result.returncode > 0:
+            raise CommandFailException(result.stderr)
 
         # Strip the newline in the end of the result
         output = result.stdout[0:-1]
@@ -134,7 +138,9 @@ class Subkey:
         elif use_docker:
             self.implementation = DockerSubkeyImplementation(docker_image=docker_image)
         else:
-            raise InvalidConfigurationError('No valid subkey configuration, either set local, http host or docker')
+            raise InvalidConfigurationError(
+                'No valid subkey configuration, either set subkey_path, subkey_host or subkey_host'
+            )
 
     def execute_command(self, command):
         self.implementation.execute_command(command)
