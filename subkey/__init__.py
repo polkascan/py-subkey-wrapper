@@ -37,17 +37,6 @@ class InvalidConfigurationError(Exception):
 
 class SubkeyImplementation(ABC):
 
-    def build_command_string(self, command, **kwargs):
-        command_array = ['-o json']
-
-        for name, value in kwargs.items():
-            if value is True:
-                command_array += ['--{}'.format(shlex.quote(name))]
-            else:
-                command_array += ['--{}={}'.format(shlex.quote(name), shlex.quote(value))]
-
-        return command_array + [shlex.quote(command)]
-
     @abstractmethod
     def execute_command(self, command, stdin=None, json_output=True, **kwargs):
         pass
