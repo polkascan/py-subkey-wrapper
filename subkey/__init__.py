@@ -44,6 +44,9 @@ class SubkeyImplementation(ABC):
     def generate_key(self, network):
         return self.execute_command(['--network={}'.format(network), 'generate'])
 
+    def inspect(self, network, suri):
+        return self.execute_command(['--network={}'.format(network), 'inspect', suri])
+
     def sign(self, data, suri, is_hex=True):
 
         return self.execute_command(
@@ -136,6 +139,9 @@ class Subkey:
 
     def generate_key(self, network):
         return self.implementation.generate_key(network=network)
+
+    def inspect(self, network, suri):
+        return self.implementation.inspect(network=network, suri=suri)
 
     def sign(self, data, suri, is_hex=True):
         if is_hex:
