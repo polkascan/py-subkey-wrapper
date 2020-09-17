@@ -131,7 +131,7 @@ class Subkey:
             self.implementation = DockerSubkeyImplementation(docker_image=docker_image)
         else:
             raise InvalidConfigurationError(
-                'No valid subkey configuration, either set subkey_path, subkey_host or subkey_host'
+                'No valid subkey configuration, either set subkey_path, subkey_host or use_docker'
             )
 
     def execute_command(self, command):
