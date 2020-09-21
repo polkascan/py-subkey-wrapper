@@ -41,7 +41,10 @@ class SubkeyImplementation(ABC):
         return self.execute_command(['generate', '--network={}'.format(network)])
 
     def inspect(self, network, suri):
-        return self.execute_command(['inspect-key', '--network={}'.format(network), suri])
+        return self.execute_command(['inspect', '--network={}'.format(network), suri])
+
+    def vanity(self, network, pattern):
+        return self.execute_command(['vanity', '--pattern={}'.format(pattern), '--network={}'.format(network)])
 
     def sign(self, data, suri, is_hex=True):
 
@@ -60,7 +63,8 @@ class DockerSubkeyImplementation(SubkeyImplementation):
 
     def execute_command(self, command, stdin=None, json_output=True, **kwargs):
 
-        command = command + ['--output-type=json']
+        if json_output:
+            command = command + ['--output-type=json']
 
         full_command = ' '.join([shlex.quote(el) for el in command])
 
@@ -76,7 +80,7 @@ class DockerSubkeyImplementation(SubkeyImplementation):
             output = output[0:-1].decode()
 
             if json_output:
-                output = json.loads(output)
+                output = json.loads(output[output.index('{'):])
 
             return output
 
@@ -135,6 +139,9 @@ class Subkey:
 
     def generate_key(self, network):
         return self.implementation.generate_key(network=network)
+
+    def vanity(self, network, pattern):
+        return self.implementation.vanity(network=network, pattern=pattern)
 
     def inspect(self, network, suri):
         return self.implementation.inspect(network=network, suri=suri)
