@@ -38,10 +38,10 @@ class SubkeyImplementation(ABC):
         pass
 
     def generate_key(self, network):
-        return self.execute_command(['--network={}'.format(network), 'generate'])
+        return self.execute_command(['generate', '--network={}'.format(network)])
 
     def inspect(self, network, suri):
-        return self.execute_command(['--network={}'.format(network), 'inspect', suri])
+        return self.execute_command(['inspect-key', '--network={}'.format(network), suri])
 
     def sign(self, data, suri, is_hex=True):
 
@@ -60,7 +60,7 @@ class DockerSubkeyImplementation(SubkeyImplementation):
 
     def execute_command(self, command, stdin=None, json_output=True, **kwargs):
 
-        command = ['--output=json'] + command
+        command = command + ['--output-type=json']
 
         full_command = ' '.join([shlex.quote(el) for el in command])
 
@@ -94,7 +94,7 @@ class LocalSubkeyImplementation(SubkeyImplementation):
 
     def execute_command(self, command, stdin=None, json_output=True, **kwargs):
 
-        result = subprocess.run([self.subkey_path, '--output=json'] + command, input=stdin, encoding='ascii',
+        result = subprocess.run([self.subkey_path] + command + ['--output-type', 'json'], input=stdin, encoding='ascii',
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         if result.returncode > 0:
@@ -127,7 +127,7 @@ class Subkey:
             self.implementation = DockerSubkeyImplementation(docker_image=docker_image)
         else:
             raise InvalidConfigurationError(
-                'No valid subkey configuration, either set subkey_path, subkey_host or subkey_host'
+                'No valid subkey configuration, either set subkey_path, subkey_host or use_docker'
             )
 
     def execute_command(self, command):
